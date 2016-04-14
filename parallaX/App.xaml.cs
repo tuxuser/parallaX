@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.Gaming.Input;
 
 namespace parallaX
 {
@@ -22,6 +23,8 @@ namespace parallaX
     /// </summary>
     sealed partial class App : Application
     {
+        public static Gamepad GameController;
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -33,6 +36,12 @@ namespace parallaX
                 Microsoft.ApplicationInsights.WindowsCollectors.Session);
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            Gamepad.GamepadAdded += Gamepad_GamepadAdded;
+
+        }
+        private void Gamepad_GamepadAdded(object sender, Gamepad e)
+        {
+            GameController = Gamepad.Gamepads.First();
         }
 
         /// <summary>

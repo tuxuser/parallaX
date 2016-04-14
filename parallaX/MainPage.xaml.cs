@@ -9,12 +9,16 @@ using System.Threading.Tasks;
 using System.Text;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Devices.Enumeration;
+using Windows.Gaming.Input;
 
 namespace parallaX
 {
+
     // iNiT
     public sealed partial class MainPage : Page
     {
+
         static StringBuilder logStr = new StringBuilder();
         static ulong sizeCounter = 0;
 
@@ -33,11 +37,9 @@ namespace parallaX
             ShowSplashPanel.Begin();
             ShowLogo.Begin();
             ShowMenu.Begin();
-
-            // textBoxDebug.Text = "\nparallaX initialized... Waiting for your input!\n\n";
         }
 
-        // TEXTBOX UPDATER
+        // LOGPANEL UPDATER
         public void updateText(string text)
         {
             textBoxDebug.Text += text;
@@ -67,24 +69,14 @@ namespace parallaX
             sizeCounter = 0;
             logStr = new StringBuilder();
 
-            if (splashPanel.Opacity == 1)
-            {
-                HideSplashPanel.Begin();
-            }
-            if (settingsPanel.Opacity == 1)
-            {
-                HideSettingsPanel.Begin();
-            }
-            if (debugPanel.Opacity == 0)
-            {
-                ShowDebugPanel.Begin();
-            }
-
             textBoxDebug.Text = "";
 
-            updateText("\n* * * * * * * * * * * * * * * *\n");
+            updateText("* * * * * * * * * * * * * * * *\n");
             updateText("* * *  D U M P i N G  * * *\n");
-            updateText("* * * * * * * * * * * * * * * * *\n\n");
+            updateText("* * * * * * * * * * * * * * * *\n\n");
+
+            showDebugPanel();
+
             if (bIsFile)
                 updateText("F i L E :: " + target + "\n");
             else
@@ -178,8 +170,7 @@ namespace parallaX
                 BasicProperties pro = await file.GetBasicPropertiesAsync();
                 sizeCounter = sizeCounter + pro.Size;
                 Debug.WriteLine(file.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
-                //updateText(file.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)) + "\n");
-                updateText(file.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
+                updateText(file.Name + " (Filesize: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)) + "\n");
                 await file.CopyAsync(destinationFolder, file.Name + ".x", NameCollisionOption.ReplaceExisting);
 
             }
@@ -256,35 +247,109 @@ namespace parallaX
 
         // B U T T O N S
 
-        // 01 - DiRDUMP
-        private void Dump_Button_Click(object sender, RoutedEventArgs e)
+        // DiRDUMP
+        private async void dirdumpBTN_Click(object sender, RoutedEventArgs e)
         {
-            //s for static :)
-            if (inputFileDumpSource.Text == "s")
+            if (dumpSource.Text == "")
             {
-                updateText("\nUsing hardcoded path...\n\n");
-                Dump("N:\\BlackBox\\", inputFileDumpDestination.Text);
-                Dump("U:\\ShellState\\", inputFileDumpDestination.Text);
-                Dump("S:\\ProgramData\\Microsoft\\Windows\\AppRepository\\", inputFileDumpDestination.Text);
-                Dump("S:\\programdata\\microsoft\\windows\\apprepository\\", inputFileDumpDestination.Text);
+                textBoxDebug.Text = "";
 
+                updateText("* * * * * * * * * * * * *\n");
+                updateText("* * *  E R R O R  * * *\n");
+                updateText("* * * * * * * * * * * * *\n\n");
+                updateText("Set a 'DUMPSOURCE' in Settings and try again...");
+
+                showDebugPanel();
             }
             else
             {
-                updateText("\nUsing custom path...\n\n");
-                Dump(inputFileDumpSource.Text, inputFileDumpDestination.Text);
+                Dump(dumpSource.Text, dumpDestination.Text);
             }
         }
 
-        // 02-DiSCDUMP
-        private async void discdumpButton_Click(object sender, RoutedEventArgs e)
+        // DiSCDUMP
+        private async void discdumpBTN_Click(object sender, RoutedEventArgs e)
         {
-            Dump("O:\\MSXC\\", "usb");
+            showDebugPanel();
+
             Dump("O:\\Licenses\\", "usb");
+            Dump("O:\\MSXC\\", "usb");
         }
 
-        // 03-SETTiNGS
-        private void settingsButton_Click(object sender, RoutedEventArgs e)
+        // FiLEBROWSER
+        private void filebrowserBTN_Click(object sender, RoutedEventArgs e)
+        {
+            showFilebrowserPanel();
+        }
+
+        // TOOLBOX
+        private void toolboxBTN_Click(object sender, RoutedEventArgs e)
+        {
+            showToolboxPanel();
+        }
+
+        // DEViCELiST
+        private async void devicelistBTN_Click(object sender, RoutedEventArgs e)
+        {
+            var removableStorages = await KnownFolders.RemovableDevices.GetFoldersAsync();
+            if (removableStorages.Count > 0)
+            {
+                // Display each storage device
+                foreach (StorageFolder storage in removableStorages)
+                {
+                    StringBuilder devStr = new StringBuilder();
+                    int counter = 0;
+                    foreach (DeviceInformation di in await DeviceInformation.FindAllAsync())
+                    {
+                        counter = counter + 1;
+                        devStr.Append("Dev No." + counter + "\r\nID: " + di.Id + "\r\nDefault: " + di.IsDefault + "\r\nEnabled: " + di.IsEnabled + "\r\nKind: " + di.Kind + "\r\nName: " + di.Name + "\r\n\r\n");
+                    }
+                    Debug.Write(devStr);
+                    StorageFile sampleFile = await storage.CreateFileAsync("devices.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(sampleFile, devStr.ToString());
+                    break;
+                }
+            }
+        }
+
+        // SETTiNGS
+        private void settingsBTN_Click(object sender, RoutedEventArgs e)
+        {
+            showSettingsPanel();
+        }
+
+        // PANELS ANIMATIONS
+
+        private void showDebugPanel()
+        {
+            if (splashPanel.Opacity == 1)
+            {
+                HideSplashPanel.Begin();
+            }
+            if (toolboxPanel.Opacity == 1)
+            {
+                toolboxPanelFadeOut.Begin();
+            }
+            if (filebrowserPanel.Opacity == 1)
+            {
+                filebrowserPanelFadeOut.Begin();
+            }
+            if (settingsPanel.Opacity == 1)
+            {
+                settingsPanelFadeOut.Begin();
+            }
+            if (debugPanel.Opacity == 0)
+            {
+                Canvas.SetZIndex(debugPanel, 9999);
+                Canvas.SetZIndex(filebrowserPanel, 0);
+                Canvas.SetZIndex(toolboxPanel, 0);
+                Canvas.SetZIndex(settingsPanel, 0);
+
+                debugPanelFadeIn.Begin();
+            }
+        }
+
+        private void showFilebrowserPanel()
         {
             if (splashPanel.Opacity == 1)
             {
@@ -292,11 +357,74 @@ namespace parallaX
             }
             if (debugPanel.Opacity == 1)
             {
-                HideDebugPanel.Begin();
+                debugPanelFadeOut.Begin();
+            }
+            if (toolboxPanel.Opacity == 1)
+            {
+                toolboxPanelFadeOut.Begin();
+            }
+            if (settingsPanel.Opacity == 1)
+            {
+                settingsPanelFadeOut.Begin();
+            }
+            if (filebrowserPanel.Opacity == 0)
+            {
+                Canvas.SetZIndex(debugPanel, 0);
+                Canvas.SetZIndex(filebrowserPanel, 9999);
+                Canvas.SetZIndex(toolboxPanel, 0);
+                Canvas.SetZIndex(settingsPanel, 0);
+
+                filebrowserPanelFadeIn.Begin();
+            }
+        }
+
+        private void showToolboxPanel()
+        {
+            if (splashPanel.Opacity == 1)
+            {
+                HideSplashPanel.Begin();
+            }
+            if (debugPanel.Opacity == 1)
+            {
+                debugPanelFadeOut.Begin();
+            }
+            if (settingsPanel.Opacity == 1)
+            {
+                settingsPanelFadeOut.Begin();
+            }
+            if (toolboxPanel.Opacity == 0)
+            {
+                Canvas.SetZIndex(debugPanel, 0);
+                Canvas.SetZIndex(filebrowserPanel, 0);
+                Canvas.SetZIndex(toolboxPanel, 9999);
+                Canvas.SetZIndex(settingsPanel, 0);
+
+                toolboxPanelFadeIn.Begin();
+            }
+        }
+
+        private void showSettingsPanel()
+        {
+            if (splashPanel.Opacity == 1)
+            {
+                HideSplashPanel.Begin();
+            }
+            if (debugPanel.Opacity == 1)
+            {
+                debugPanelFadeOut.Begin();
+            }
+            if (toolboxPanel.Opacity == 1)
+            {
+                toolboxPanelFadeOut.Begin();
             }
             if (settingsPanel.Opacity == 0)
             {
-                ShowSettingsPanel.Begin();
+                Canvas.SetZIndex(debugPanel, 0);
+                Canvas.SetZIndex(filebrowserPanel, 0);
+                Canvas.SetZIndex(toolboxPanel, 0);
+                Canvas.SetZIndex(settingsPanel, 9999);
+
+                settingsPanelFadeIn.Begin();
             }
         }
     }
