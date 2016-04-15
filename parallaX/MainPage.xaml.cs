@@ -28,14 +28,6 @@ namespace parallaX
         static StringBuilder logStr = new StringBuilder();
         static ulong sizeCounter = 0;
 
-        [DllImport("XboxOneExtensions.dll", SetLastError = true)]
-        static extern IntPtr LoadLibrary(string lpFileName);
-
-        static bool CheckLibrary(string fileName)
-        {
-            return LoadLibrary(fileName) == IntPtr.Zero;
-        }
-
         public MainPage()
         {
             this.InitializeComponent();
@@ -53,13 +45,12 @@ namespace parallaX
         }
 
         // HTTP POST
-        public async void PostAsync(string uri, byte[] data)
+        public async void PostAsync(HttpClient client, string uri, byte[] data)
         {
             GC.Collect();
             ByteArrayContent byteContent = new ByteArrayContent(data);
-            var httpClient = new HttpClient();
-            await httpClient.PostAsync(uri, byteContent);
-            Debug.WriteLine("Upload finished!");
+            await client.PostAsync(uri, byteContent);
+            //Debug.WriteLine("Upload finished!");
             // textBoxDebug.Text += "\nUpload finished!\r\n";
         }
 
@@ -91,6 +82,7 @@ namespace parallaX
             try
             {
                 StorageFolder storage = null;
+                HttpClient client = null;
                 if (method == "usb")
                 {
                     // Find all storage devices using the known folder
@@ -110,8 +102,8 @@ namespace parallaX
                 else if (method == "net")
                 {
                     updateText("D E S T :: NETWORK\n\n");
+                    client = new HttpClient();
                 }
-
 
                 if (!bIsFile)
                 {
@@ -119,7 +111,7 @@ namespace parallaX
                     if (method == "usb")
                         await CopyFolderAsync(sourceDir, storage);
                     else if (method == "net")
-                        await HttpDumpFolder(sourceDir, server);
+                        await HttpDumpFolder(client, sourceDir, server);
                 }
                 else if (bIsFile)
                 {
@@ -127,7 +119,7 @@ namespace parallaX
                     if (method == "usb")
                         await CopyFileAsync(sourceFile, storage);
                     else if (method == "net")
-                        await HttpDumpFile(sourceFile, server);
+                        await HttpDumpFile(client, sourceFile, server);
 
                     BasicProperties pro = await sourceFile.GetBasicPropertiesAsync();
                     sizeCounter = sizeCounter + pro.Size;
@@ -153,24 +145,24 @@ namespace parallaX
             }
         }
 
-        public async Task HttpDumpFolder(StorageFolder source, String server)
+        public async Task HttpDumpFolder(HttpClient client, StorageFolder source, String server)
         {
             foreach (StorageFile file in await source.GetFilesAsync())
             {
                 byte[] array = await ReadFile(file);
-                PostAsync(server + "/dump.php?filename=" + file.Name, array);
+                PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
             }
 
             foreach (StorageFolder folder in await source.GetFoldersAsync())
             {
-                await HttpDumpFolder(folder, server);
+                await HttpDumpFolder(client, folder, server);
             }
         }
 
-        public async Task HttpDumpFile(StorageFile source, String server)
+        public async Task HttpDumpFile(HttpClient client, StorageFile source, String server)
         {
             byte[] array = await ReadFile(source);
-            PostAsync(server + "/dump.php?filename=" + source.Name, array);
+            PostAsync(client, server + "/dump.php?filename=" + source.Path, array);
         }
 
         //Folder copy function
@@ -315,7 +307,7 @@ namespace parallaX
             }
             else
             {
-                Dump(dumpSource.Text, dumpDestination.Text, netServer.Text);
+                Dump(dumpSource.Text, dumpDestination.Text, "http://" + netServer.Text);
             }
         }
 
