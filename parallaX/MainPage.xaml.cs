@@ -96,21 +96,23 @@ namespace parallaX
 
                     if (!bIsFile)
                     {
-                        foreach (string f in Directory.GetFiles(target))
+                        StorageFolder sourceDir = await StorageFolder.GetFolderFromPathAsync(target);
+                        foreach (StorageFile file in await sourceDir.GetFilesAsync())
                         {
-                            byte[] array = File.ReadAllBytes(f);
-                            PostAsync(server+"/dump.php?filename=" + f, array);
+                            byte[] array = await ReadFile(file);
+                            PostAsync(server+"/dump.php?filename=" + file.Name, array);
                         }
 
-                        foreach (string d in Directory.GetDirectories(target))
+                        foreach (StorageFolder folder in await sourceDir.GetFoldersAsync(target))
                         {
-                            Dump(d, method);
+                            Dump(folder, method);
                         }
                     }
                     else if(bIsFile)
                     {
-                        Debug.WriteLine("net dump only supports dirs");
-                        updateText("ERROR: Dump method 'net' only supports directories.\n\n* * *  D U M P  F A I L E D  * * * \n");
+                        StorageFile sourceFile = await StorageFile.GetFileFromPathAsync(target);
+                        byte[] array = await ReadFile(sourceFile);
+                        PostAsync(server+"/dump.php?filename=" + sourceFile.Name, array);
                     }
                 }
                 else if (method == "usb")
