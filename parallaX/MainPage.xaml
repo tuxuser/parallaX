@@ -149,7 +149,7 @@
 
             <TextBox x:Name="dumpSource" Margin="0,20,250,10" Text="" PlaceholderText="Enter Filename or Directory..." Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
             <TextBox x:Name="dumpDestination" Margin="0,0,250,20" Text="usb" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
-
+            <TextBox x:Name="netServer" Margin="0,20,250,20" Text="" PlaceholderText="NetDumpServer (eg.192.168.0.100:88)" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
         </StackPanel>
         
         <!-- M A i N M E N U -->

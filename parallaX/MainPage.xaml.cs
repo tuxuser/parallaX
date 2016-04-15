@@ -315,7 +315,7 @@ namespace parallaX
             }
             else
             {
-                Dump(dumpSource.Text, dumpDestination.Text);
+                Dump(dumpSource.Text, dumpDestination.Text, netServer.Text);
             }
         }
 
