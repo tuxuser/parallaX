@@ -90,7 +90,7 @@ namespace parallaX
 
             try
             {
-                StorageFolder storage;
+                StorageFolder storage = null;
                 if (method == "usb")
                 {
                     // Find all storage devices using the known folder
