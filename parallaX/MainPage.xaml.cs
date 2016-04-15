@@ -67,7 +67,7 @@ namespace parallaX
         private async void Dump(string target, string method, string server = "unknown")
         {
             bool bIsFile = false;
-            if(target.Substring(target.Length - 1)=="\\")
+            if (target.Substring(target.Length - 1) == "\\")
                 bIsFile = false;
             else
                 bIsFile = true;
@@ -90,81 +90,87 @@ namespace parallaX
 
             try
             {
-                if (method == "net")
-                {
-                    updateText("D E S T :: NETWORK\n\n");
-
-                    if (!bIsFile)
-                    {
-                        StorageFolder sourceDir = await StorageFolder.GetFolderFromPathAsync(target);
-                        foreach (StorageFile file in await sourceDir.GetFilesAsync())
-                        {
-                            byte[] array = await ReadFile(file);
-                            PostAsync(server+"/dump.php?filename=" + file.Name, array);
-                        }
-
-                        foreach (StorageFolder folder in await sourceDir.GetFoldersAsync(target))
-                        {
-                            Dump(folder, method);
-                        }
-                    }
-                    else if(bIsFile)
-                    {
-                        StorageFile sourceFile = await StorageFile.GetFileFromPathAsync(target);
-                        byte[] array = await ReadFile(sourceFile);
-                        PostAsync(server+"/dump.php?filename=" + sourceFile.Name, array);
-                    }
-                }
-                else if (method == "usb")
+                StorageFolder storage;
+                if (method == "usb")
                 {
                     // Find all storage devices using the known folder
                     var removableStorages = await KnownFolders.RemovableDevices.GetFoldersAsync();
-                    if (removableStorages.Count > 0)
-                    {
-                        // Display each storage device
-                        foreach (StorageFolder storage in removableStorages)
-                        {
-                            Debug.WriteLine("USB found!");
-                            updateText("D E S T :: USB DEViCE\n\n");
-
-                            if (!bIsFile)
-                            {
-                                StorageFolder sourceDir = await StorageFolder.GetFolderFromPathAsync(target);
-                                await CopyFolderAsync(sourceDir, storage);
-                            }
-                            else if(bIsFile)
-                            {
-                                StorageFile sourceFile = await StorageFile.GetFileFromPathAsync(target);
-                                await CopyFileAsync(sourceFile, storage);
-
-                                BasicProperties pro = await sourceFile.GetBasicPropertiesAsync();
-                                sizeCounter = sizeCounter + pro.Size;
-                            }
-
-                            logStr.Append(SizeSuffix(Convert.ToInt64(sizeCounter)).ToString() + " bytes dumped!\r\n");
-                            Debug.WriteLine(SizeSuffix(Convert.ToInt64(sizeCounter)).ToString() + " bytes dumped!");
-
-                            updateText("\nDUMPSiZE: " + SizeSuffix(Convert.ToInt64(sizeCounter)).ToString() + " bytes\r\n");
-                            updateText("\n* * *  D U M P  S U C C E S S F U L  * * * \n");
-
-                            StorageFile sampleFile = await storage.CreateFileAsync("log.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
-                            await FileIO.WriteTextAsync(sampleFile, logStr.ToString());
-                            break;
-                        }
-                        updateText("\r\n");
-                    }
-                    else
+                    if (removableStorages.Count <= 0)
                     {
                         updateText("ERROR: USB not found.\n\n* * *  D U M P  F A I L E D  * * * \n");
                         Debug.WriteLine("USB not found!");
                     }
+
+                    // Display each storage device
+                    storage = removableStorages[0];
+
+                    Debug.WriteLine("USB found!");
+                    updateText("D E S T :: USB DEViCE\n\n");
                 }
+                else if (method == "net")
+                {
+                    updateText("D E S T :: NETWORK\n\n");
+                }
+
+
+                if (!bIsFile)
+                {
+                    StorageFolder sourceDir = await StorageFolder.GetFolderFromPathAsync(target);
+                    if (method == "usb")
+                        await CopyFolderAsync(sourceDir, storage);
+                    else if (method == "net")
+                        await HttpDumpFolder(sourceDir, server);
+                }
+                else if (bIsFile)
+                {
+                    StorageFile sourceFile = await StorageFile.GetFileFromPathAsync(target);
+                    if (method == "usb")
+                        await CopyFileAsync(sourceFile, storage);
+                    else if (method == "net")
+                        await HttpDumpFile(sourceFile, server);
+
+                    BasicProperties pro = await sourceFile.GetBasicPropertiesAsync();
+                    sizeCounter = sizeCounter + pro.Size;
+                }
+
+                logStr.Append(SizeSuffix(Convert.ToInt64(sizeCounter)).ToString() + " bytes dumped!\r\n");
+                Debug.WriteLine(SizeSuffix(Convert.ToInt64(sizeCounter)).ToString() + " bytes dumped!");
+
+                updateText("\nDUMPSiZE: " + SizeSuffix(Convert.ToInt64(sizeCounter)).ToString() + " bytes\r\n");
+                updateText("\n* * *  D U M P  S U C C E S S F U L  * * * \n");
+
+                if (method == "usb")
+                {
+                    StorageFile sampleFile = await storage.CreateFileAsync("log.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(sampleFile, logStr.ToString());
+                }
+                updateText("\r\n");
             }
             catch (Exception ex)
             {
                 updateText("ERROR: " + ex.Message + "\n\n* * *  D U M P  F A I L E D  * * * \n");
                 Debug.WriteLine(ex.Message);
             }
+        }
+
+        public async Task HttpDumpFolder(StorageFolder source, String server)
+        {
+            foreach (StorageFile file in await source.GetFilesAsync())
+            {
+                byte[] array = await ReadFile(file);
+                PostAsync(server + "/dump.php?filename=" + file.Name, array);
+            }
+
+            foreach (StorageFolder folder in await source.GetFoldersAsync())
+            {
+                await HttpDumpFolder(folder, server);
+            }
+        }
+
+        public async Task HttpDumpFile(StorageFile source, String server)
+        {
+            byte[] array = await ReadFile(source);
+            PostAsync(server + "/dump.php?filename=" + source.Name, array);
         }
 
         //Folder copy function
