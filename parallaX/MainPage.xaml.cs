@@ -11,6 +11,12 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Devices.Enumeration;
 using Windows.Gaming.Input;
+using Windows.System;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace parallaX
 {
@@ -104,7 +110,7 @@ namespace parallaX
                     else if(bIsFile)
                     {
                         Debug.WriteLine("net dump only supports dirs");
-                        updateText("\n* * *  D U M P  F A I L E D  * * * \n");
+                        updateText("ERROR: Dump method 'net' only supports directories.\n\n* * *  D U M P  F A I L E D  * * * \n");
                     }
                 }
                 else if (method == "usb")
@@ -147,14 +153,14 @@ namespace parallaX
                     }
                     else
                     {
-                        updateText("\n* * *  D U M P  F A I L E D  * * * \n");
+                        updateText("ERROR: USB not found.\n\n* * *  D U M P  F A I L E D  * * * \n");
                         Debug.WriteLine("USB not found!");
                     }
                 }
             }
             catch (Exception ex)
             {
-                updateText("\n* * *  D U M P  F A I L E D  * * * \n"+ex.Message);
+                updateText("ERROR: " + ex.Message + "\n\n* * *  D U M P  F A I L E D  * * * \n");
                 Debug.WriteLine(ex.Message);
             }
         }
@@ -170,7 +176,7 @@ namespace parallaX
                 BasicProperties pro = await file.GetBasicPropertiesAsync();
                 sizeCounter = sizeCounter + pro.Size;
                 Debug.WriteLine(file.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
-                updateText(file.Name + " (Filesize: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)) + "\n");
+                updateText(file.Name + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
                 await file.CopyAsync(destinationFolder, file.Name + ".x", NameCollisionOption.ReplaceExisting);
 
             }
@@ -242,10 +248,48 @@ namespace parallaX
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                updateText("ERROR: " + ex.Message + "\n");
             }
         }
 
+        // GET USERS
+        private async void GetUsers()
+        {
+            var removableStorages = await KnownFolders.RemovableDevices.GetFoldersAsync();
+            if (removableStorages.Count > 0)
+            {
+                foreach (StorageFolder storage in removableStorages)
+                {
+                    StringBuilder usrStr = new StringBuilder();
+                    int counter = 0;
+                    IReadOnlyList<User> users = await User.FindAllAsync();
+                    foreach (User user in users)
+                    {
+                        counter = counter + 1;
+                        usrStr.Append("User No.: " + counter + "\r\n");
+                        usrStr.Append("AccountName: " + (string)await user.GetPropertyAsync(KnownUserProperties.AccountName) + "\r\n");
+                        usrStr.Append("DisplayName: " + (string)await user.GetPropertyAsync(KnownUserProperties.DisplayName) + "\r\n");
+                        usrStr.Append("DomainName: " + (string)await user.GetPropertyAsync(KnownUserProperties.DomainName) + "\r\n");
+                        usrStr.Append("FirstName: " + (string)await user.GetPropertyAsync(KnownUserProperties.FirstName) + "\r\n");
+                        usrStr.Append("GuestHost: " + (string)await user.GetPropertyAsync(KnownUserProperties.GuestHost) + "\r\n");
+                        usrStr.Append("LastName: " + (string)await user.GetPropertyAsync(KnownUserProperties.LastName) + "\r\n");
+                        usrStr.Append("PrincipleName: " + (string)await user.GetPropertyAsync(KnownUserProperties.PrincipalName) + "\r\n");
+                        usrStr.Append("ProviderName: " + (string)await user.GetPropertyAsync(KnownUserProperties.ProviderName) + "\r\n");
+                        usrStr.Append("SIP Uri: " + (string)await user.GetPropertyAsync(KnownUserProperties.SessionInitiationProtocolUri) + "\r\n");
+                        usrStr.Append("Auth Status: " + user.AuthenticationStatus.ToString() + "\r\n");
+                        usrStr.Append("User Type: " + user.Type.ToString() + "\r\n\r\n");
+                    }
+                    Debug.Write(usrStr);
+                    StorageFile sampleFile = await storage.CreateFileAsync("users.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(sampleFile, usrStr.ToString());
+                    break;
+                }
+            }
+        }
+
+        ///////////////////////////////////
         // B U T T O N S
+        ///////////////////////////
 
         // DiRDUMP
         private async void dirdumpBTN_Click(object sender, RoutedEventArgs e)
@@ -267,13 +311,65 @@ namespace parallaX
             }
         }
 
+        // READFiLE>BYTES
+        public async Task<byte[]> ReadFile(StorageFile file)
+        {
+            byte[] fileBytes = null;
+            using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
+            {
+                fileBytes = new byte[stream.Size];
+                using (DataReader reader = new DataReader(stream))
+                {
+                    await reader.LoadAsync((uint)stream.Size);
+                    reader.ReadBytes(fileBytes);
+                }
+            }
+
+            return fileBytes;
+        }
+
         // DiSCDUMP
         private async void discdumpBTN_Click(object sender, RoutedEventArgs e)
         {
+
+            /*
+            gameThumb.Opacity = 1;
+
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.UriSource = new Uri("O:\\MSXC\\Metadata\\Package0.xvc\\480x480_1.png");
+            gameThumb.Source = bitmapImage;
+            */
+
+            updateText("");
+
+            updateText("* * * * * * * * * * * * * * * * * * * * * *\n");
+            updateText("* * *  D U M P i N G  G A M E  * * *\n");
+            updateText("* * * * * * * * * * * * * * * * * * * * * *\n\n");
+
+            updateText("S O U R C E :: BD-ROM\n");
+            updateText("D E S T :: USB DEViCE\n\n");
+
             showDebugPanel();
 
-            Dump("O:\\Licenses\\", "usb");
-            Dump("O:\\MSXC\\", "usb");
+            try
+            {
+                StorageFile catalog = await StorageFile.GetFileFromPathAsync("O:\\MSXC\\Metadata\\catalog.js");
+                byte[] test = await ReadFile(catalog);
+                string text  = System.Text.Encoding.Unicode.GetString(test);
+                var game = JsonConvert.DeserializeObject<dynamic>(text);
+
+                string version = game.version;
+                string title = game.packages[0].vui[0].title;
+                string size = game.packages[0].size;
+
+                updateText("Title: " + title + " (v" + version + ")\n");
+                updateText("Size: " + size + " bytes\n\n");
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
         }
 
         // FiLEBROWSER
@@ -291,6 +387,14 @@ namespace parallaX
         // DEViCELiST
         private async void devicelistBTN_Click(object sender, RoutedEventArgs e)
         {
+            textBoxDebug.Text = "";
+
+            updateText("* * * * * * * * * * * * * * * * * * * * * * * * *\n");
+            updateText("* * *  D E V i C E L i S T - D U M P  * * *\n");
+            updateText("* * * * * * * * * * * * * * * * * * * * * * * * *\n\n");
+
+            showDebugPanel();
+
             var removableStorages = await KnownFolders.RemovableDevices.GetFoldersAsync();
             if (removableStorages.Count > 0)
             {
@@ -305,11 +409,70 @@ namespace parallaX
                         devStr.Append("Dev No." + counter + "\r\nID: " + di.Id + "\r\nDefault: " + di.IsDefault + "\r\nEnabled: " + di.IsEnabled + "\r\nKind: " + di.Kind + "\r\nName: " + di.Name + "\r\n\r\n");
                     }
                     Debug.Write(devStr);
+                    updateText(devStr.ToString());
                     StorageFile sampleFile = await storage.CreateFileAsync("devices.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
                     await FileIO.WriteTextAsync(sampleFile, devStr.ToString());
                     break;
                 }
+
+                updateText("Devicelist successfully exported...");
             }
+            else
+            {
+                updateText("Unable to save file.\nNo USB Device found!");
+            }
+        }
+
+        // USERLiST
+        private async void userlistBTN_Click(object sender, RoutedEventArgs e)
+        {
+
+            textBoxDebug.Text = "";
+
+            updateText("* * * * * * * * * * * * * * * * * * * * * * *\n");
+            updateText("* * *  U S E R L i S T - D U M P  * * *\n");
+            updateText("* * * * * * * * * * * * * * * * * * * * * * *\n\n");
+
+            showDebugPanel();
+
+            var removableStorages = await KnownFolders.RemovableDevices.GetFoldersAsync();
+            if (removableStorages.Count > 0)
+            {
+                foreach (StorageFolder storage in removableStorages)
+                {
+                    StringBuilder usrStr = new StringBuilder();
+                    int counter = 0;
+                    IReadOnlyList<User> users = await User.FindAllAsync();
+                    foreach (User user in users)
+                    {
+                        counter = counter + 1;
+                        usrStr.Append("User No.: " + counter + "\r\n");
+                        usrStr.Append("AccountName: " + (string)await user.GetPropertyAsync(KnownUserProperties.AccountName) + "\r\n");
+                        usrStr.Append("DisplayName: " + (string)await user.GetPropertyAsync(KnownUserProperties.DisplayName) + "\r\n");
+                        usrStr.Append("DomainName: " + (string)await user.GetPropertyAsync(KnownUserProperties.DomainName) + "\r\n");
+                        usrStr.Append("FirstName: " + (string)await user.GetPropertyAsync(KnownUserProperties.FirstName) + "\r\n");
+                        usrStr.Append("GuestHost: " + (string)await user.GetPropertyAsync(KnownUserProperties.GuestHost) + "\r\n");
+                        usrStr.Append("LastName: " + (string)await user.GetPropertyAsync(KnownUserProperties.LastName) + "\r\n");
+                        usrStr.Append("PrincipleName: " + (string)await user.GetPropertyAsync(KnownUserProperties.PrincipalName) + "\r\n");
+                        usrStr.Append("ProviderName: " + (string)await user.GetPropertyAsync(KnownUserProperties.ProviderName) + "\r\n");
+                        usrStr.Append("SIP Uri: " + (string)await user.GetPropertyAsync(KnownUserProperties.SessionInitiationProtocolUri) + "\r\n");
+                        usrStr.Append("Auth Status: " + user.AuthenticationStatus.ToString() + "\r\n");
+                        usrStr.Append("User Type: " + user.Type.ToString() + "\r\n\r\n");
+                    }
+                    Debug.Write(usrStr);
+                    updateText(usrStr.ToString());
+                    StorageFile sampleFile = await storage.CreateFileAsync("users.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                    await FileIO.WriteTextAsync(sampleFile, usrStr.ToString());
+                    break;
+                }
+
+                updateText("Userlist successfully exported...");
+            }
+            else
+            {
+                updateText("Unable to save file.\nNo USB Device found!");
+            }
+
         }
 
         // SETTiNGS
@@ -318,7 +481,9 @@ namespace parallaX
             showSettingsPanel();
         }
 
-        // PANELS ANIMATIONS
+        ///////////////////////////////////
+        // T R A N S i T i O N S
+        ///////////////////////////
 
         private void showDebugPanel()
         {
@@ -388,6 +553,10 @@ namespace parallaX
             {
                 debugPanelFadeOut.Begin();
             }
+            if (filebrowserPanel.Opacity == 1)
+            {
+                filebrowserPanelFadeOut.Begin();
+            }
             if (settingsPanel.Opacity == 1)
             {
                 settingsPanelFadeOut.Begin();
@@ -416,6 +585,10 @@ namespace parallaX
             if (toolboxPanel.Opacity == 1)
             {
                 toolboxPanelFadeOut.Begin();
+            }
+            if (filebrowserPanel.Opacity == 1)
+            {
+                filebrowserPanelFadeOut.Begin();
             }
             if (settingsPanel.Opacity == 0)
             {
