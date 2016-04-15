@@ -252,41 +252,6 @@ namespace parallaX
             }
         }
 
-        // GET USERS
-        private async void GetUsers()
-        {
-            var removableStorages = await KnownFolders.RemovableDevices.GetFoldersAsync();
-            if (removableStorages.Count > 0)
-            {
-                foreach (StorageFolder storage in removableStorages)
-                {
-                    StringBuilder usrStr = new StringBuilder();
-                    int counter = 0;
-                    IReadOnlyList<User> users = await User.FindAllAsync();
-                    foreach (User user in users)
-                    {
-                        counter = counter + 1;
-                        usrStr.Append("User No.: " + counter + "\r\n");
-                        usrStr.Append("AccountName: " + (string)await user.GetPropertyAsync(KnownUserProperties.AccountName) + "\r\n");
-                        usrStr.Append("DisplayName: " + (string)await user.GetPropertyAsync(KnownUserProperties.DisplayName) + "\r\n");
-                        usrStr.Append("DomainName: " + (string)await user.GetPropertyAsync(KnownUserProperties.DomainName) + "\r\n");
-                        usrStr.Append("FirstName: " + (string)await user.GetPropertyAsync(KnownUserProperties.FirstName) + "\r\n");
-                        usrStr.Append("GuestHost: " + (string)await user.GetPropertyAsync(KnownUserProperties.GuestHost) + "\r\n");
-                        usrStr.Append("LastName: " + (string)await user.GetPropertyAsync(KnownUserProperties.LastName) + "\r\n");
-                        usrStr.Append("PrincipleName: " + (string)await user.GetPropertyAsync(KnownUserProperties.PrincipalName) + "\r\n");
-                        usrStr.Append("ProviderName: " + (string)await user.GetPropertyAsync(KnownUserProperties.ProviderName) + "\r\n");
-                        usrStr.Append("SIP Uri: " + (string)await user.GetPropertyAsync(KnownUserProperties.SessionInitiationProtocolUri) + "\r\n");
-                        usrStr.Append("Auth Status: " + user.AuthenticationStatus.ToString() + "\r\n");
-                        usrStr.Append("User Type: " + user.Type.ToString() + "\r\n\r\n");
-                    }
-                    Debug.Write(usrStr);
-                    StorageFile sampleFile = await storage.CreateFileAsync("users.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
-                    await FileIO.WriteTextAsync(sampleFile, usrStr.ToString());
-                    break;
-                }
-            }
-        }
-
         ///////////////////////////////////
         // B U T T O N S
         ///////////////////////////
