@@ -147,15 +147,25 @@ namespace parallaX
 
         public async Task HttpDumpFolder(HttpClient client, StorageFolder source, String server)
         {
-            foreach (StorageFile file in await source.GetFilesAsync())
+            IReadOnlyList<IStorageItem> list = await source.GetItemsAsync();
+            foreach (IStorageItem item in list)
             {
-                byte[] array = await ReadFile(file);
-                PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
-            }
+                if (item.IsOfType(StorageItemTypes.Folder))
+                {
+                    await HttpDumpFolder(client, (StorageFolder)item, server);
+                }
+                else if (item.IsOfType(StorageItemTypes.File))
+                {
+                    StorageFile file = (StorageFile)item;
+                    Debug.WriteLine("Got: " + file.Path);
+                    byte[] array = await ReadFile(file);
+                    PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
+                }
+                else
+                {
+                    updateText(item.Name + "is of unknown type!!! (maybe hardlink)\n");
+                }
 
-            foreach (StorageFolder folder in await source.GetFoldersAsync())
-            {
-                await HttpDumpFolder(client, folder, server);
             }
         }
 
@@ -169,20 +179,29 @@ namespace parallaX
         public async Task CopyFolderAsync(StorageFolder source, StorageFolder destination)
         {
             StorageFolder destinationFolder = null;
-            destinationFolder = await destination.CreateFolderAsync(source.Name, CreationCollisionOption.OpenIfExists);
-
-            foreach (StorageFile file in await source.GetFilesAsync())
+            // Replace ':' so 'C:\' => 'C\'
+            String outputDir = "dump\\" + source.Path.Replace(":", "");
+            destinationFolder = await destination.CreateFolderAsync(outputDir, CreationCollisionOption.OpenIfExists);
+            IReadOnlyList<IStorageItem> list = await source.GetItemsAsync();
+            foreach (IStorageItem item in list)
             {
-                BasicProperties pro = await file.GetBasicPropertiesAsync();
-                sizeCounter = sizeCounter + pro.Size;
-                Debug.WriteLine(file.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
-                updateText(file.Name + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
-                await file.CopyAsync(destinationFolder, file.Name + ".x", NameCollisionOption.ReplaceExisting);
-
-            }
-            foreach (StorageFolder folder in await source.GetFoldersAsync())
-            {
-                await CopyFolderAsync(folder, destinationFolder);
+                if (item.IsOfType(StorageItemTypes.Folder))
+                {
+                    await CopyFolderAsync((StorageFolder)item, destinationFolder);
+                }
+                else if (item.IsOfType(StorageItemTypes.File))
+                {
+                    StorageFile file = (StorageFile)item;
+                    BasicProperties pro = await item.GetBasicPropertiesAsync();
+                    sizeCounter = sizeCounter + pro.Size;
+                    Debug.WriteLine(item.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
+                    updateText(item.Name + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
+                    await file.CopyAsync(destinationFolder, item.Name + ".x", NameCollisionOption.ReplaceExisting);
+                }
+                else
+                {
+                    updateText(item.Name + "is of unknown type!!! (maybe hardlink)\n");
+                }
             }
         }
 
@@ -257,7 +276,7 @@ namespace parallaX
         ///////////////////////////
 
         // DiRDUMP
-        private async void dirdumpBTN_Click(object sender, RoutedEventArgs e)
+        private void dirdumpBTN_Click(object sender, RoutedEventArgs e)
         {
             if (dumpSource.Text == "")
             {
