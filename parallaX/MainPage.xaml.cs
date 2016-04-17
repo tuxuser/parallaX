@@ -17,6 +17,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Media;
+using Windows.UI;
 
 namespace parallaX
 {
@@ -26,7 +28,9 @@ namespace parallaX
     {
 
         static StringBuilder logStr = new StringBuilder();
+        static StringBuilder rwxStr = new StringBuilder();
         static ulong sizeCounter = 0;
+        static bool testWritePerm = false;
 
         public MainPage()
         {
@@ -44,41 +48,44 @@ namespace parallaX
             scrollView.ScrollToVerticalOffset(scrollView.MaxHeight);
         }
 
-        // HTTP POST
-        public async void PostAsync(HttpClient client, string uri, byte[] data)
+        // READFiLE>BYTES
+        public async Task<byte[]> ReadFile(StorageFile file)
         {
-            GC.Collect();
-            ByteArrayContent byteContent = new ByteArrayContent(data);
-            await client.PostAsync(uri, byteContent);
-            //Debug.WriteLine("Upload finished!");
-            // textBoxDebug.Text += "\nUpload finished!\r\n";
+            byte[] fileBytes = null;
+            using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
+            {
+                fileBytes = new byte[stream.Size];
+                using (DataReader reader = new DataReader(stream))
+                {
+                    await reader.LoadAsync((uint)stream.Size);
+                    reader.ReadBytes(fileBytes);
+                }
+            }
+            return fileBytes;
         }
 
         // DUMPER
-        private async void Dump(string target, string method, string server = "unknown")
+        private async void Dump(string target, string method, string server = "unknown", bool checkWritePerm = false)
         {
             bool bIsFile = false;
+
             if (target.Substring(target.Length - 1) == "\\")
                 bIsFile = false;
             else
                 bIsFile = true;
 
+            if (checkWritePerm)
+                testWritePerm = true;
+            else
+                testWritePerm = false;
+
             sizeCounter = 0;
+            rwxStr = new StringBuilder();
             logStr = new StringBuilder();
 
             textBoxDebug.Text = "";
 
-            updateText("* * * * * * * * * * * * * * * *\n");
-            updateText("* * *  D U M P i N G  * * *\n");
-            updateText("* * * * * * * * * * * * * * * *\n\n");
-
-            showDebugPanel();
-
-            if (bIsFile)
-                updateText("F i L E :: " + target + "\n");
-            else
-                updateText("D i R :: " + target + "\n");
-
+			showDebugPanel();
             try
             {
                 StorageFolder storage = null;
@@ -97,11 +104,9 @@ namespace parallaX
                     storage = removableStorages[0];
 
                     Debug.WriteLine("USB found!");
-                    updateText("D E S T :: USB DEViCE\n\n");
                 }
                 else if (method == "net")
                 {
-                    updateText("D E S T :: NETWORK\n\n");
                     client = new HttpClient();
                 }
 
@@ -135,6 +140,11 @@ namespace parallaX
                 {
                     StorageFile sampleFile = await storage.CreateFileAsync("log.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
                     await FileIO.WriteTextAsync(sampleFile, logStr.ToString());
+                    if (testWritePerm)
+                    {
+                        IStorageFile rwxFile = await storage.CreateFileAsync("rwx.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                        await FileIO.WriteTextAsync(rwxFile, rwxStr.ToString());
+                    }
                 }
                 updateText("\r\n");
             }
@@ -143,6 +153,16 @@ namespace parallaX
                 updateText("ERROR: " + ex.Message + "\n\n* * *  D U M P  F A I L E D  * * * \n");
                 Debug.WriteLine(ex.Message);
             }
+        }
+
+        // HTTP POST
+        public async void PostAsync(HttpClient client, string uri, byte[] data)
+        {
+            GC.Collect();
+            ByteArrayContent byteContent = new ByteArrayContent(data);
+            await client.PostAsync(uri, byteContent);
+            //Debug.WriteLine("Upload finished!");
+            // textBoxDebug.Text += "\nUpload finished!\r\n";
         }
 
         public async Task HttpDumpFolder(HttpClient client, StorageFolder source, String server)
@@ -157,7 +177,10 @@ namespace parallaX
                 else if (item.IsOfType(StorageItemTypes.File))
                 {
                     StorageFile file = (StorageFile)item;
-                    Debug.WriteLine("Got: " + file.Path);
+                    BasicProperties pro = await item.GetBasicPropertiesAsync();
+                    sizeCounter = sizeCounter + pro.Size;
+                    Debug.WriteLine(item.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
+                    updateText(item.Path + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
                     byte[] array = await ReadFile(file);
                     PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
                 }
@@ -187,16 +210,49 @@ namespace parallaX
             {
                 if (item.IsOfType(StorageItemTypes.Folder))
                 {
-                    await CopyFolderAsync((StorageFolder)item, destinationFolder);
+                    await CopyFolderAsync((StorageFolder)item, destination);
+                    if (testWritePerm)
+                    {
+                        try
+                        {
+                            string testline = "test";
+                            string testfile = "rwx.txt";
+                            IStorageFolder fldr = (IStorageFolder)item;
+                            IStorageFile testFile = await fldr.CreateFileAsync(testfile, Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                            await Windows.Storage.FileIO.WriteTextAsync(testFile, testline);
+
+                            if (File.Exists(testFile.Path))
+                            {
+                                rwxStr.Append("FOLDER: " + testFile.Path + " TRUE");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("ERROR: " + ex.Message);
+                        }
+                    }
                 }
                 else if (item.IsOfType(StorageItemTypes.File))
                 {
+                    Debug.WriteLine("Saving file: " + item.Path);
                     StorageFile file = (StorageFile)item;
                     BasicProperties pro = await item.GetBasicPropertiesAsync();
                     sizeCounter = sizeCounter + pro.Size;
                     Debug.WriteLine(item.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
-                    updateText(item.Name + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
+                    updateText(item.Path + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
                     await file.CopyAsync(destinationFolder, item.Name + ".x", NameCollisionOption.ReplaceExisting);
+          			if (testWritePerm)
+                    {
+                        try
+                        {
+                            await Windows.Storage.FileIO.AppendTextAsync(file, "0");
+                            rwxStr.Append("FILE: " + file.Path + " TRUE");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("ERROR: " + ex.Message);
+                        }
+                    }
                 }
                 else
                 {
@@ -230,7 +286,6 @@ namespace parallaX
             bool validDir = false;
             bool r = false;
             bool w = false;
-            bool x = false;
 
             try
             {
@@ -278,52 +333,45 @@ namespace parallaX
         // DiRDUMP
         private void dirdumpBTN_Click(object sender, RoutedEventArgs e)
         {
+            sizeCounter = 0;
             if (dumpSource.Text == "")
             {
                 textBoxDebug.Text = "";
 
                 updateText("* * * * * * * * * * * * *\n");
-                updateText("* * *  E R R O R  * * *\n");
+                updateText("* * * * * INFO * * *  * *\n");
                 updateText("* * * * * * * * * * * * *\n\n");
-                updateText("Set a 'DUMPSOURCE' in Settings and try again...");
+                updateText("No 'DUMPSOURCE' given. Dumping RECURSIVE...");
 
                 showDebugPanel();
+
+                string drives = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                foreach (char driveLetter in drives)
+                {
+                    Dump(driveLetter + ":\\", dumpDestination.Text, "http://" + netServer.Text);
+                }
             }
             else
             {
+                updateText("");
+
+                updateText("* * * * * * * * * * * * * * * * * * * * * * *\n");
+                updateText("* * *  D U M P i N G  F i L E S  * * *\n");
+                updateText("* * * * * * * * * * * * * * * * * * * * * * *\n\n");
+
+                updateText("S O U R C E :: " + dumpSource.Text + "\n");
+                updateText("T A R G E T :: " + dumpDestination.Text.ToUpper() + "\n\n");
+
+                showDebugPanel();
+
                 Dump(dumpSource.Text, dumpDestination.Text, "http://" + netServer.Text);
             }
-        }
-
-        // READFiLE>BYTES
-        public async Task<byte[]> ReadFile(StorageFile file)
-        {
-            byte[] fileBytes = null;
-            using (IRandomAccessStreamWithContentType stream = await file.OpenReadAsync())
-            {
-                fileBytes = new byte[stream.Size];
-                using (DataReader reader = new DataReader(stream))
-                {
-                    await reader.LoadAsync((uint)stream.Size);
-                    reader.ReadBytes(fileBytes);
-                }
-            }
-
-            return fileBytes;
         }
 
         // DiSCDUMP
         private async void discdumpBTN_Click(object sender, RoutedEventArgs e)
         {
-
-            /*
-            gameThumb.Opacity = 1;
-
-            BitmapImage bitmapImage = new BitmapImage();
-            bitmapImage.UriSource = new Uri("O:\\MSXC\\Metadata\\Package0.xvc\\480x480_1.png");
-            gameThumb.Source = bitmapImage;
-            */
-
+            sizeCounter = 0;
             updateText("");
 
             updateText("* * * * * * * * * * * * * * * * * * * * * *\n");
@@ -331,7 +379,7 @@ namespace parallaX
             updateText("* * * * * * * * * * * * * * * * * * * * * *\n\n");
 
             updateText("S O U R C E :: BD-ROM\n");
-            updateText("D E S T :: USB DEViCE\n\n");
+            updateText("T A R G E T :: " + dumpDestination.Text.ToUpper() + "\n\n");
 
             showDebugPanel();
 
@@ -346,8 +394,11 @@ namespace parallaX
                 string title = game.packages[0].vui[0].title;
                 string size = game.packages[0].size;
 
-                updateText("Title: " + title + " (v" + version + ")\n");
-                updateText("Size: " + size + " bytes\n\n");
+                updateText("GAME: " + title + " (v" + version + ")\n");
+                updateText("SiZE: " + size + " bytes\n\n");
+
+                Dump(@"O:\MSXC\", dumpDestination.Text, netServer.Text);
+                Dump(@"O:\Licenses\", dumpDestination.Text, netServer.Text);
 
             }
             catch (Exception ex)
@@ -459,6 +510,47 @@ namespace parallaX
 
         }
 
+        // TEST-RWX
+        private void testRWXBTN_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (testRWXTarget.Text == "")
+            {
+                textBoxDebug.Text = "";
+
+                updateText("* * * * * * * * * * * * *\n");
+                updateText("* * *  E R R O R  * * *\n");
+                updateText("* * * * * * * * * * * * *\n\n");
+                updateText("Set a 'RWX-TARGET' and try again...");
+
+                showDebugPanel();
+            }
+            else
+            {
+                textBoxDebug.Text = "";
+
+                updateText("* * * * * * * * * * * * * * * * * * * * *\n");
+                updateText("* * *  T E S T i N G  R W X  * * *\n");
+                updateText("* * * * * * * * * * * * * * * * * * * * *\n\n");
+
+                showDebugPanel();
+
+                testRWX(testRWXTarget.Text);
+            }
+        }
+
+        // EMPTY1
+        private void empty1BTN_Click(object sender, RoutedEventArgs e)
+        {
+            // Do Something...
+        }
+
+        // EMPTY2
+        private void empty2BTN_Click(object sender, RoutedEventArgs e)
+        {
+            // Do Something...
+        }
+
         // SETTiNGS
         private void settingsBTN_Click(object sender, RoutedEventArgs e)
         {
@@ -468,6 +560,20 @@ namespace parallaX
         ///////////////////////////////////
         // T R A N S i T i O N S
         ///////////////////////////
+
+        private void buttonGotFocus(object sender, RoutedEventArgs e)
+        {
+            Button current = (Button)sender;
+            current.Background = new SolidColorBrush(Color.FromArgb(255, 80, 160, 0));
+            current.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
+        }
+
+        private void buttonLostFocus(object sender, RoutedEventArgs e)
+        {
+            Button current = (Button)sender;
+            current.Background = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
+            current.Foreground = new SolidColorBrush(Color.FromArgb(255, 80, 160, 0));
+        }
 
         private void showDebugPanel()
         {

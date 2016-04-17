@@ -15,6 +15,57 @@
             <ImageBrush x:Name="ContainerBG" ImageSource="Assets/background_01.png"/>
         </Grid.Background>
 
+        <!-- M A i N M E N U -->
+
+        <!-- LOGO -->
+
+        <StackPanel x:Name="Logo" Margin="0,0,0,0" Padding="0" Width="200" Height="60" Opacity="0" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" ManipulationMode="None" >
+
+            <StackPanel.Resources>
+                <Storyboard x:Name="ShowLogo">
+                    <DoubleAnimation EnableDependentAnimation="True" Storyboard.TargetName="Logo" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5" BeginTime="0:0:1">
+                        <DoubleAnimation.EasingFunction>
+                            <PowerEase EasingMode="EaseIn"></PowerEase>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </StackPanel.Resources>
+
+            <StackPanel.RenderTransform>
+                <CompositeTransform Rotation="-1.63"/>
+            </StackPanel.RenderTransform>
+
+            <StackPanel.Background>
+                <ImageBrush Stretch="Fill" ImageSource="Assets/pX_logo_shadowed.png"/>
+            </StackPanel.Background>
+
+        </StackPanel>
+
+        <!-- BTN -->
+
+        <StackPanel x:Name="Menu" Margin="7,60,15,0" HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0">
+
+            <StackPanel.Resources>
+                <Storyboard x:Name="ShowMenu">
+                    <DoubleAnimation EnableDependentAnimation="True" Storyboard.TargetName="Menu" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"  BeginTime="0:0:1.2">
+                        <DoubleAnimation.EasingFunction>
+                            <PowerEase EasingMode="EaseIn"></PowerEase>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </StackPanel.Resources>
+
+            <Button x:Name="dirdumpButton" Content="F i L E D U M P E R" HorizontalAlignment="Center" Margin="0,20,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="dirdumpBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="1" FontFamily="Segoe UI Black"/>
+            <Button x:Name="discdumpButton" Content="G A M E D U M P E R" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="discdumpBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="2"/>
+            <Button x:Name="filebrowserButton" Content="F i L E B R O W S E R" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="filebrowserBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="3"/>
+            <Button x:Name="toolboxButton" Content="x T O O L B O X" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="toolboxBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="4"/>
+            <Button x:Name="empty1Button" Content="F R E E  S P O T" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="empty1BTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="5"/>
+            <Button x:Name="empty2Button" Content="N E W  F E A T U R E" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="empty2BTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="6"/>
+
+            <Button x:Name="settingsButton" Content="S E T T i N G S" HorizontalAlignment="Center" Margin="0,20,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="settingsBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="7"/>
+
+        </StackPanel>
+
         <!-- P A N E L S -->
         
         <!-- SPLASH -->
@@ -66,10 +117,10 @@
                 </Storyboard>
             </StackPanel.Resources>
 
-            <TextBlock x:Name="debugPanelHeader" Margin="0,0,0,10" Text="// x L O G _" Foreground="#FF4BC70F" FontSize="14" FontWeight="Bold" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False" />
+            <TextBlock x:Name="debugPanelHeader" Margin="0,0,0,15" Text="[ x L O G ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal"  IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False" />
 
-            <ScrollViewer Height="238" Width="auto" x:Name="scrollView" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" UseSystemFocusVisuals="False" IsTabStop="True" >
-                <TextBlock Height="auto" x:Name="textBoxDebug" Foreground="White" FontSize="9" TextWrapping="Wrap" Text=""/>
+            <ScrollViewer Height="230" Width="auto" x:Name="scrollView" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" UseSystemFocusVisuals="False" IsTabStop="True" >
+                <TextBlock Height="auto" x:Name="textBoxDebug" Foreground="White" FontSize="10" TextWrapping="Wrap" Text=""/>
             </ScrollViewer>
             
         </StackPanel>
@@ -95,8 +146,14 @@
                 </Storyboard>
             </StackPanel.Resources>
 
-            <TextBlock x:Name="toolboxPanelHeader" Margin="0,0,0,10" Text="// x T O O L S _" Foreground="#FF4BC70F" FontSize="14" FontWeight="Bold" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
+            <TextBlock x:Name="toolboxPanelHeader" Margin="0,0,0,10" Text="[ x T O O L B O X ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
 
+            <Button x:Name="devicelistButton" Content="CREATE DEViCELiST DUMP" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="devicelistBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False"/>
+            <Button x:Name="userlistButton" Content="CREATE USERLiST DUMP" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="userlistBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False" />
+
+            <TextBox x:Name="testRWXTarget" Margin="0,15,0,0" Text="" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" PlaceholderText="Set Target-Dir or File (eg. X:\APPS\)" Foreground="#FF50A000" FontSize="12" FontWeight="Normal" Background="{x:Null}" Width="918" Height="25" IsTabStop="True" AcceptsReturn="False" InputScope="Text" BorderBrush="White" />
+            <Button x:Name="testRWXButton" Content="TEST TARGET FOR RWX" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="testRWXBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False"/>
+            
         </StackPanel>
 
         <!-- FiLEBROWSER -->
@@ -120,7 +177,7 @@
                 </Storyboard>
             </StackPanel.Resources>
 
-            <TextBlock x:Name="filebrowserPanelHeader" Margin="0,0,0,10" Text="// F i L E B R O W S E R _" Foreground="#FF4BC70F" FontSize="14" FontWeight="Bold" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
+            <TextBlock x:Name="filebrowserPanelHeader" Margin="0,0,0,10" Text="[ F i L E B R O W S E R ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
 
         </StackPanel>
         
@@ -145,71 +202,22 @@
                 </Storyboard>
             </StackPanel.Resources>
 
-            <TextBlock x:Name="settingsPanelHeader" Margin="0,0,0,10" Text="// x S E T T i N G S _" Foreground="#FF4BC70F" FontSize="14" FontWeight="Bold" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
+            <TextBlock x:Name="settingsPanelHeader" Margin="0,0,0,10" Text="[ x S E T T i N G S ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
 
             <TextBox x:Name="dumpSource" Margin="0,20,250,10" Text="" PlaceholderText="Enter Filename or Directory..." Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
             <TextBox x:Name="dumpDestination" Margin="0,0,250,20" Text="usb" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
             <TextBox x:Name="netServer" Margin="0,20,250,20" Text="" PlaceholderText="NetDumpServer (eg.192.168.0.100:88)" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
-        </StackPanel>
-        
-        <!-- M A i N M E N U -->
-
-        <!-- LOGO -->
-
-        <StackPanel x:Name="Logo" Margin="0,0,0,0" Padding="0" Width="200" Height="60" RequestedTheme="Default" Opacity="0" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" ManipulationMode="None" >
-
-            <StackPanel.Resources>
-                <Storyboard x:Name="ShowLogo">
-                    <DoubleAnimation EnableDependentAnimation="True" Storyboard.TargetName="Logo" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5" BeginTime="0:0:1">
-                        <DoubleAnimation.EasingFunction>
-                            <PowerEase EasingMode="EaseIn"></PowerEase>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                </Storyboard>
-            </StackPanel.Resources>
-            
-            <StackPanel.RenderTransform>
-                <CompositeTransform Rotation="-1.63"/>
-            </StackPanel.RenderTransform>
-
-            <StackPanel.Background>
-                <ImageBrush Stretch="Fill" ImageSource="Assets/pX_logo_shadowed.png"/>
-            </StackPanel.Background>
-
-        </StackPanel>
-
-        <!-- BTN -->
-
-        <StackPanel x:Name="Menu" Margin="7,60,15,0" HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0">
-
-            <StackPanel.Resources>
-                <Storyboard x:Name="ShowMenu">
-                    <DoubleAnimation EnableDependentAnimation="True" Storyboard.TargetName="Menu" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"  BeginTime="0:0:1.2">
-                        <DoubleAnimation.EasingFunction>
-                            <PowerEase EasingMode="EaseIn"></PowerEase>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                </Storyboard>
-            </StackPanel.Resources>
-
-            <Button x:Name="dirdumpButton" Content="D U M P  D i R / F i L E" HorizontalAlignment="Center" Margin="0,15,0,0" ClickMode="Press" Click="dirdumpBTN_Click" Width="180" Height="25" Background="White" Foreground="#FF64CB00" FontSize="9" FontWeight="Bold"/>
-            <Button x:Name="discdumpButton" Content="D U M P  D i S C" HorizontalAlignment="Center" Margin="0,5,0,0" ClickMode="Press" Click="discdumpBTN_Click" Width="180" Height="25" Background="White" Foreground="#FF64CB00" FontSize="9" FontWeight="Bold"/>
-            <Button x:Name="filebrowserButton" Content="F i L E B R O W S E R" HorizontalAlignment="Center" Margin="0,5,0,0" ClickMode="Press" Click="filebrowserBTN_Click" Width="180" Height="25" Background="White" Foreground="#FF64CB00" FontSize="9" FontWeight="Bold"/>
-            <Button x:Name="toolboxButton" Content="T O O L B O X" HorizontalAlignment="Center" Margin="0,5,0,0" ClickMode="Press" Click="toolboxBTN_Click" Width="180" Height="25" Background="White" Foreground="#FF64CB00" FontSize="9" FontWeight="Bold"/>
-            <Button x:Name="devicelistButton" Content="D E V i C E L i S T" HorizontalAlignment="Center" Margin="0,5,0,0" ClickMode="Press" Click="devicelistBTN_Click" Width="180" Height="25" Background="White" Foreground="#FF64CB00" FontSize="9" FontWeight="Bold"/>
-            <Button x:Name="userlistButton" Content="U S E R L i S T" HorizontalAlignment="Center" Margin="0,5,0,0" ClickMode="Press" Click="userlistBTN_Click" Width="180" Height="25" Background="White" Foreground="#FF64CB00" FontSize="9" FontWeight="Bold"/>
-
-            <Button x:Name="settingsButton" Content="S E T T i N G S" HorizontalAlignment="Center" Margin="0,25,0,0" ClickMode="Press" Click="settingsBTN_Click" Width="180" Height="25" Background="White" Foreground="#FF64CB00" FontSize="9" FontWeight="Bold"/>
 
         </StackPanel>
 
         <!-- F O O T E R M E N U -->
 
-        <StackPanel x:Name="ctrlButtons" Width="55" Height="40" Margin="0,0,0,15" RequestedTheme="Default" HorizontalAlignment="Center" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" >
+        <StackPanel x:Name="ctrlButtons" Width="55" Height="40" Margin="0,0,0,14" HorizontalAlignment="Center" VerticalAlignment="Bottom" RenderTransformOrigin="0.4,0.4" >
 
             <StackPanel.Background>
                 <ImageBrush ImageSource="Assets/btn_settings.png"/>
             </StackPanel.Background>
+            
 
         </StackPanel>
 
