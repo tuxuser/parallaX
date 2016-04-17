@@ -113,6 +113,18 @@
     <None Include="parallaX_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Audio\onClick01.wav" />
+    <Content Include="Assets\Audio\onClick02.wav" />
+    <Content Include="Assets\Audio\onError01.wav" />
+    <Content Include="Assets\Audio\onError02.wav" />
+    <Content Include="Assets\Audio\onFileDumped01.wav" />
+    <Content Include="Assets\Audio\onFocus01.wav" />
+    <Content Include="Assets\Audio\onFocus02.wav" />
+    <Content Include="Assets\Audio\onFocus03.wav" />
+    <Content Include="Assets\Audio\onSuccess01.wav" />
+    <Content Include="Assets\Audio\onSuccess02.wav" />
+    <Content Include="Assets\Audio\onTrans01.wav" />
+    <Content Include="Assets\Audio\onTrans02.wav" />
     <Content Include="Assets\background_01.png" />
     <Content Include="Assets\background_02.png" />
     <Content Include="Assets\btn_settings.png" />

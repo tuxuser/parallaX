@@ -19,6 +19,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
+using Windows.UI.Xaml.Input;
 
 namespace parallaX
 {
@@ -39,6 +40,8 @@ namespace parallaX
             ShowSplashPanel.Begin();
             ShowLogo.Begin();
             ShowMenu.Begin();
+
+            playSound("onTrans01.wav", false);
         }
 
         // LOGPANEL UPDATER
@@ -65,7 +68,7 @@ namespace parallaX
         }
 
         // DUMPER
-        private async Task Dump(string target, string method, string server = "unknown", bool checkWritePerm = false)
+        private async void Dump(string target, string method, string server = "unknown", bool checkWritePerm = false)
         {
             bool bIsFile = false;
 
@@ -83,9 +86,10 @@ namespace parallaX
             rwxStr = new StringBuilder();
             logStr = new StringBuilder();
 
-            textBoxDebug.Text = "";
+            // textBoxDebug.Text = "";
 
-			showDebugPanel();
+            // showDebugPanel();
+
             try
             {
                 StorageFolder storage = null;
@@ -98,6 +102,7 @@ namespace parallaX
                     {
                         updateText("ERROR: USB not found.\n\n* * *  D U M P  F A I L E D  * * * \n");
                         Debug.WriteLine("USB not found!");
+                        playSound("onError01.wav", false);
                     }
 
                     // Display each storage device
@@ -136,6 +141,8 @@ namespace parallaX
                 updateText("\nDUMPSiZE: " + SizeSuffix(Convert.ToInt64(sizeCounter)).ToString() + " bytes\r\n");
                 updateText("\n* * *  D U M P  S U C C E S S F U L  * * * \n");
 
+                playSound("onSuccess01.wav", false);
+
                 if (method == "usb")
                 {
                     StorageFile sampleFile = await storage.CreateFileAsync("log.txt", Windows.Storage.CreationCollisionOption.ReplaceExisting);
@@ -152,11 +159,12 @@ namespace parallaX
             {
                 updateText("ERROR: " + ex.Message + "\n\n* * *  D U M P  F A I L E D  * * * \n");
                 Debug.WriteLine(ex.Message);
+                playSound("onError01.wav", false);
             }
         }
 
         // HTTP POST
-        public async Task PostAsync(HttpClient client, string uri, byte[] data)
+        public async void PostAsync(HttpClient client, string uri, byte[] data)
         {
             GC.Collect();
             ByteArrayContent byteContent = new ByteArrayContent(data);
@@ -182,7 +190,7 @@ namespace parallaX
                     Debug.WriteLine(item.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
                     updateText(item.Path + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
                     byte[] array = await ReadFile(file);
-                    await PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
+                    PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
                 }
                 else
                 {
@@ -195,7 +203,7 @@ namespace parallaX
         public async Task HttpDumpFile(HttpClient client, StorageFile source, String server)
         {
             byte[] array = await ReadFile(source);
-            await PostAsync(client, server + "/dump.php?filename=" + source.Path, array);
+            PostAsync(client, server + "/dump.php?filename=" + source.Path, array);
         }
 
         //Folder copy function
@@ -234,14 +242,16 @@ namespace parallaX
                 }
                 else if (item.IsOfType(StorageItemTypes.File))
                 {
-                    Debug.WriteLine("Saving file: " + item.Path + "=> " + destinationFolder + item.Name);
-                    File.Copy(item.Path, destinationFolder + item.Name);
+                    Debug.WriteLine("Saving file: " + item.Path);
                     StorageFile file = (StorageFile)item;
                     BasicProperties pro = await item.GetBasicPropertiesAsync();
                     sizeCounter = sizeCounter + pro.Size;
                     Debug.WriteLine(item.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
-                    updateText(item.Path + "=> " + destinationFolder + item.Name + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
-          			if (testWritePerm)
+                    updateText(item.Path + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
+                    //playSound("onFileDumped01.wav", false);
+
+                    await file.CopyAsync(destinationFolder, item.Name + ".x", NameCollisionOption.ReplaceExisting);
+                    if (testWritePerm)
                     {
                         try
                         {
@@ -331,16 +341,22 @@ namespace parallaX
         ///////////////////////////
 
         // DiRDUMP
-        private async void dirdumpBTN_Click(object sender, RoutedEventArgs e)
+        private void dirdumpBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
+
             sizeCounter = 0;
+
             if (dumpSource.Text == "")
             {
+                playSound("onError01.wav", false);
+
                 textBoxDebug.Text = "";
 
-                updateText("* * * * * * * * * * * * *\n");
-                updateText("* * * * * INFO * * *  * *\n");
-                updateText("* * * * * * * * * * * * *\n\n");
+                updateText("* * * * * * * * ** * * * * * * * * * *\n");
+                updateText("* * *  A T T E N T i O N  * * *\n");
+                updateText("* * * * *  * * * * * * * * * * * * * *\n\n");
                 updateText("No 'DUMPSOURCE' given. Dumping RECURSIVE...");
 
                 showDebugPanel();
@@ -348,12 +364,12 @@ namespace parallaX
                 string drives = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 foreach (char driveLetter in drives)
                 {
-                    await Dump(driveLetter + ":\\", dumpDestination.Text, "http://" + netServer.Text);
+                    Dump(driveLetter + ":\\", dumpDestination.Text, "http://" + netServer.Text);
                 }
             }
             else
             {
-                updateText("");
+                textBoxDebug.Text = "";
 
                 updateText("* * * * * * * * * * * * * * * * * * * * * * *\n");
                 updateText("* * *  D U M P i N G  F i L E S  * * *\n");
@@ -364,13 +380,16 @@ namespace parallaX
 
                 showDebugPanel();
 
-                await Dump(dumpSource.Text, dumpDestination.Text, "http://" + netServer.Text);
+                Dump(dumpSource.Text, dumpDestination.Text, "http://" + netServer.Text);
             }
         }
 
         // DiSCDUMP
         private async void discdumpBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
+
             sizeCounter = 0;
             updateText("");
 
@@ -387,7 +406,7 @@ namespace parallaX
             {
                 StorageFile catalog = await StorageFile.GetFileFromPathAsync("O:\\MSXC\\Metadata\\catalog.js");
                 byte[] test = await ReadFile(catalog);
-                string text  = System.Text.Encoding.Unicode.GetString(test);
+                string text = System.Text.Encoding.Unicode.GetString(test);
                 var game = JsonConvert.DeserializeObject<dynamic>(text);
 
                 string version = game.version;
@@ -397,12 +416,14 @@ namespace parallaX
                 updateText("GAME: " + title + " (v" + version + ")\n");
                 updateText("SiZE: " + size + " bytes\n\n");
 
-                await Dump(@"O:\MSXC\", dumpDestination.Text, netServer.Text);
-                await Dump(@"O:\Licenses\", dumpDestination.Text, netServer.Text);
+                Dump(@"O:\MSXC\", dumpDestination.Text, "http://" + netServer.Text);
+                Dump(@"O:\Licenses\", dumpDestination.Text, "http://" + netServer.Text);
 
             }
             catch (Exception ex)
             {
+                playSound("onError01.wav", false);
+
                 Debug.WriteLine(ex);
             }
         }
@@ -410,18 +431,27 @@ namespace parallaX
         // FiLEBROWSER
         private void filebrowserBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
+
             showFilebrowserPanel();
         }
 
         // TOOLBOX
         private void toolboxBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
+
             showToolboxPanel();
         }
 
         // DEViCELiST
         private async void devicelistBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
+
             textBoxDebug.Text = "";
 
             updateText("* * * * * * * * * * * * * * * * * * * * * * * * *\n");
@@ -454,6 +484,8 @@ namespace parallaX
             }
             else
             {
+                playSound("onError01.wav", false);
+
                 updateText("Unable to save file.\nNo USB Device found!");
             }
         }
@@ -461,6 +493,8 @@ namespace parallaX
         // USERLiST
         private async void userlistBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
 
             textBoxDebug.Text = "";
 
@@ -505,6 +539,8 @@ namespace parallaX
             }
             else
             {
+                playSound("onError01.wav", false);
+
                 updateText("Unable to save file.\nNo USB Device found!");
             }
 
@@ -513,9 +549,13 @@ namespace parallaX
         // TEST-RWX
         private void testRWXBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
 
             if (testRWXTarget.Text == "")
             {
+                playSound("onError01.wav", false);
+
                 textBoxDebug.Text = "";
 
                 updateText("* * * * * * * * * * * * *\n");
@@ -527,6 +567,7 @@ namespace parallaX
             }
             else
             {
+
                 textBoxDebug.Text = "";
 
                 updateText("* * * * * * * * * * * * * * * * * * * * *\n");
@@ -539,22 +580,97 @@ namespace parallaX
             }
         }
 
-        // EMPTY1
-        private void empty1BTN_Click(object sender, RoutedEventArgs e)
+
+        /*
+        async void DefaultLaunch1()
         {
-            // Do Something...
+            string uriToLaunch = "C:\\Windows\\System32\\cmd.exe";
+            var uri = new Uri(uriToLaunch);
+
+            // Set the option to show a warning
+            var options = new Windows.System.LauncherOptions();
+            options.TreatAsUntrusted = true;
+
+            // Launch the URI with a warning prompt
+            var success = await Windows.System.Launcher.LaunchUriAsync(uri, options);
+
+            if (success)
+            {
+                Debug.Write("CMD LAUNCHED!");
+            }
+            else
+            {
+                Debug.Write("CMD FAiLED!");
+            }
         }
+        */
+
+        // EMPTY1
+        private async void empty1BTN_Click(object sender, RoutedEventArgs e)
+        {
+            //DefaultLaunch1();
+        }
+
+        /*
+        async void DefaultLaunch2()
+        {
+            // Path to the file in the app package to launch
+            Windows.Storage.StorageFolder folder = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFolderAsync("Assets");
+            Windows.Storage.StorageFile file = await folder.GetFileAsync("px.png");
+            var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+
+
+            if (file != null)
+            {
+                // Launch the retrieved file
+                var success = await Windows.System.Launcher.LaunchFileAsync(file);
+                
+                if (success)
+                {
+                    Debug.Write("CMD LAUNCHED!");
+                }
+                else
+                {
+                    Debug.Write("CMD FAiLED!");
+                }
+            }
+            else
+            {
+                Debug.Write("FILE NOT FOUND!");
+            }
+        }
+
+        */
 
         // EMPTY2
         private void empty2BTN_Click(object sender, RoutedEventArgs e)
         {
-            // Do Something...
+            // DefaultLaunch2();
         }
 
         // SETTiNGS
         private void settingsBTN_Click(object sender, RoutedEventArgs e)
         {
+            playSound("onClick01.wav", false);
+            playSound("onTrans01.wav", false);
+
             showSettingsPanel();
+        }
+
+        ///////////////////////////////////
+        // A U D i O
+        ///////////////////////////
+
+        private async void playSound(string path, bool isLoop = false)
+        {
+            MediaElement mysong = new MediaElement();
+            Windows.Storage.StorageFolder folder = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFolderAsync("Assets\\Audio");
+            Windows.Storage.StorageFile file = await folder.GetFileAsync(path);
+            var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+            mysong.SetSource(stream, file.ContentType);
+            mysong.IsLooping = isLoop;
+            mysong.Play();
+            //Debug.Write("Playing Sound: " + path + "(" + file.ContentType + ")" );
         }
 
         ///////////////////////////////////
@@ -570,6 +686,8 @@ namespace parallaX
 
         private void buttonLostFocus(object sender, RoutedEventArgs e)
         {
+            playSound("onFocus01.wav", false);
+
             Button current = (Button)sender;
             current.Background = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
             current.Foreground = new SolidColorBrush(Color.FromArgb(255, 80, 160, 0));
