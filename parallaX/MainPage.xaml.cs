@@ -234,13 +234,13 @@ namespace parallaX
                 }
                 else if (item.IsOfType(StorageItemTypes.File))
                 {
-                    Debug.WriteLine("Saving file: " + item.Path);
+                    Debug.WriteLine("Saving file: " + item.Path + "=> " + destinationFolder + item.Name);
+                    File.Copy(item.Path, destinationFolder + item.Name);
                     StorageFile file = (StorageFile)item;
                     BasicProperties pro = await item.GetBasicPropertiesAsync();
                     sizeCounter = sizeCounter + pro.Size;
                     Debug.WriteLine(item.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
-                    updateText(item.Path + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
-                    await file.CopyAsync(destinationFolder, item.Name + ".x", NameCollisionOption.ReplaceExisting);
+                    updateText(item.Path + "=> " + destinationFolder + item.Name + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
           			if (testWritePerm)
                     {
                         try
