@@ -65,7 +65,7 @@ namespace parallaX
         }
 
         // DUMPER
-        private async void Dump(string target, string method, string server = "unknown", bool checkWritePerm = false)
+        private async Task Dump(string target, string method, string server = "unknown", bool checkWritePerm = false)
         {
             bool bIsFile = false;
 
@@ -156,7 +156,7 @@ namespace parallaX
         }
 
         // HTTP POST
-        public async void PostAsync(HttpClient client, string uri, byte[] data)
+        public async Task PostAsync(HttpClient client, string uri, byte[] data)
         {
             GC.Collect();
             ByteArrayContent byteContent = new ByteArrayContent(data);
@@ -182,7 +182,7 @@ namespace parallaX
                     Debug.WriteLine(item.Name + " (" + SizeSuffix(Convert.ToInt64(pro.Size)) + ") // Total dumped: " + SizeSuffix(Convert.ToInt64(sizeCounter)));
                     updateText(item.Path + " (Size: " + SizeSuffix(Convert.ToInt64(pro.Size)) + ")\n");
                     byte[] array = await ReadFile(file);
-                    PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
+                    await PostAsync(client, server + "/dump.php?filename=" + file.Path, array);
                 }
                 else
                 {
@@ -195,7 +195,7 @@ namespace parallaX
         public async Task HttpDumpFile(HttpClient client, StorageFile source, String server)
         {
             byte[] array = await ReadFile(source);
-            PostAsync(client, server + "/dump.php?filename=" + source.Path, array);
+            await PostAsync(client, server + "/dump.php?filename=" + source.Path, array);
         }
 
         //Folder copy function
@@ -331,7 +331,7 @@ namespace parallaX
         ///////////////////////////
 
         // DiRDUMP
-        private void dirdumpBTN_Click(object sender, RoutedEventArgs e)
+        private async void dirdumpBTN_Click(object sender, RoutedEventArgs e)
         {
             sizeCounter = 0;
             if (dumpSource.Text == "")
@@ -348,7 +348,7 @@ namespace parallaX
                 string drives = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 foreach (char driveLetter in drives)
                 {
-                    Dump(driveLetter + ":\\", dumpDestination.Text, "http://" + netServer.Text);
+                    await Dump(driveLetter + ":\\", dumpDestination.Text, "http://" + netServer.Text);
                 }
             }
             else
@@ -364,7 +364,7 @@ namespace parallaX
 
                 showDebugPanel();
 
-                Dump(dumpSource.Text, dumpDestination.Text, "http://" + netServer.Text);
+                await Dump(dumpSource.Text, dumpDestination.Text, "http://" + netServer.Text);
             }
         }
 
@@ -397,8 +397,8 @@ namespace parallaX
                 updateText("GAME: " + title + " (v" + version + ")\n");
                 updateText("SiZE: " + size + " bytes\n\n");
 
-                Dump(@"O:\MSXC\", dumpDestination.Text, netServer.Text);
-                Dump(@"O:\Licenses\", dumpDestination.Text, netServer.Text);
+                await Dump(@"O:\MSXC\", dumpDestination.Text, netServer.Text);
+                await Dump(@"O:\Licenses\", dumpDestination.Text, netServer.Text);
 
             }
             catch (Exception ex)
