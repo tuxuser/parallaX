@@ -17,7 +17,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>parallaX_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>AC562D006222F7AC6D88987C4A26A6788CC9ABC2</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>9E952A849A7DA30FBBB3BDC224681FE25F2CF43A</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -31,6 +31,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <EnableGatekeeperAnalysis>false</EnableGatekeeperAnalysis>
     <Optimize>false</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -109,36 +110,48 @@
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AppxManifest>
     <None Include="parallaX_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\Audio\onClick01.wav" />
-    <Content Include="Assets\Audio\onClick02.wav" />
-    <Content Include="Assets\Audio\onError01.wav" />
-    <Content Include="Assets\Audio\onError02.wav" />
-    <Content Include="Assets\Audio\onFileDumped01.wav" />
-    <Content Include="Assets\Audio\onFocus01.wav" />
-    <Content Include="Assets\Audio\onFocus02.wav" />
-    <Content Include="Assets\Audio\onFocus03.wav" />
-    <Content Include="Assets\Audio\onSuccess01.wav" />
-    <Content Include="Assets\Audio\onSuccess02.wav" />
-    <Content Include="Assets\Audio\onTrans01.wav" />
-    <Content Include="Assets\Audio\onTrans02.wav" />
-    <Content Include="Assets\background_01.png" />
-    <Content Include="Assets\background_02.png" />
-    <Content Include="Assets\btn_settings.png" />
-    <Content Include="Assets\px.png" />
-    <Content Include="Assets\pX_logo.png" />
-    <Content Include="Assets\pX_logo_shadowed.png" />
+    <Content Include="Assets\App\BadgeLogo.scale-100.jpg" />
+    <Content Include="Assets\App\BadgeLogo.scale-125.jpg" />
+    <Content Include="Assets\App\BadgeLogo.scale-150.jpg" />
+    <Content Include="Assets\App\BadgeLogo.scale-200.jpg" />
+    <Content Include="Assets\App\BadgeLogo.scale-400.jpg" />
+    <Content Include="Assets\App\SplashScreen.scale-100.jpg" />
+    <Content Include="Assets\App\SplashScreen.scale-125.jpg" />
+    <Content Include="Assets\App\SplashScreen.scale-150.jpg" />
+    <Content Include="Assets\App\SplashScreen.scale-200.jpg" />
+    <Content Include="Assets\App\SplashScreen.scale-400.jpg" />
+    <Content Include="Assets\App\Square150x150Logo.scale-100.jpg" />
+    <Content Include="Assets\App\Square150x150Logo.scale-200.jpg" />
+    <Content Include="Assets\App\Square150x150Logo.scale-400.jpg" />
+    <Content Include="Assets\App\Square310x310Logo.scale-100.jpg" />
+    <Content Include="Assets\App\Square310x310Logo.scale-200.jpg" />
+    <Content Include="Assets\App\Square310x310Logo.scale-400.jpg" />
+    <Content Include="Assets\App\StoreLogo.scale-100.jpg" />
+    <Content Include="Assets\App\StoreLogo.scale-125.jpg" />
+    <Content Include="Assets\App\StoreLogo.scale-150.jpg" />
+    <Content Include="Assets\App\StoreLogo.scale-200.jpg" />
+    <Content Include="Assets\App\StoreLogo.scale-400.jpg" />
+    <Content Include="Assets\App\Wide310x150Logo.scale-100.jpg" />
+    <Content Include="Assets\App\Wide310x150Logo.scale-200.jpg" />
+    <Content Include="Assets\App\Wide310x150Logo.scale-400.jpg" />
+    <Content Include="Assets\Audio\onClick.wav" />
+    <Content Include="Assets\Audio\onError.wav" />
+    <Content Include="Assets\Audio\onFocus.wav" />
+    <Content Include="Assets\Audio\onInitLoad.wav" />
+    <Content Include="Assets\Audio\onSuccess.wav" />
+    <Content Include="Assets\Audio\onTrans.wav" />
+    <Content Include="Assets\Backgrounds\BG_01.png" />
+    <Content Include="Assets\Backgrounds\BG_02.png" />
+    <Content Include="Assets\Graphics\btnSettings.png" />
+    <Content Include="Assets\Graphics\px.png" />
+    <Content Include="Assets\Graphics\pX_logo.png" />
+    <Content Include="Assets\Graphics\parallaX_Logo.png" />
     <Content Include="Properties\Default.rd.xml" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

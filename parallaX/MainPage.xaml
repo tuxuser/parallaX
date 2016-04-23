@@ -12,7 +12,7 @@
         <!-- T H E M E -->
 
         <Grid.Background>
-            <ImageBrush x:Name="ContainerBG" ImageSource="Assets/background_01.png"/>
+            <ImageBrush x:Name="ContainerBG" ImageSource="Assets/Backgrounds/BG_01.png"/>
         </Grid.Background>
 
         <!-- M A i N M E N U -->
@@ -36,7 +36,7 @@
             </StackPanel.RenderTransform>
 
             <StackPanel.Background>
-                <ImageBrush Stretch="Fill" ImageSource="Assets/pX_logo_shadowed.png"/>
+                <ImageBrush Stretch="Fill" ImageSource="Assets/Graphics/parallaX_Logo.png"/>
             </StackPanel.Background>
 
         </StackPanel>
@@ -55,12 +55,12 @@
                 </Storyboard>
             </StackPanel.Resources>
 
-            <Button x:Name="dirdumpButton" Content="F i L E D U M P E R" HorizontalAlignment="Center" Margin="0,20,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="dirdumpBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="1" FontFamily="Segoe UI Black"/>
-            <Button x:Name="discdumpButton" Content="G A M E D U M P E R" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="discdumpBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="2"/>
-            <Button x:Name="filebrowserButton" Content="F i L E B R O W S E R" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="filebrowserBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="3"/>
-            <Button x:Name="toolboxButton" Content="x T O O L B O X" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="toolboxBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="4"/>
-            <Button x:Name="empty1Button" Content="L A U N C H  S H E L L" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="empty1BTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="5"/>
-            <Button x:Name="empty2Button" Content="L A U N C H  B A T C H" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="empty2BTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="6"/>
+            <Button x:Name="dirdumpButton" Content="F i L E D U M P" HorizontalAlignment="Center" Margin="0,20,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="dirdumpBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="1"/>
+            <Button x:Name="discdumpButton" Content="G A M E D U M P" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="discdumpBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="2"/>
+            <Button x:Name="xLoadButton" Content="x L O A D E R" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="xLoadBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="3"/>
+            <Button x:Name="filebrowserButton" Content="F i L E B R O W S E R" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="filebrowserBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="4"/>
+            <Button x:Name="toolboxButton" Content="x T O O L B O X" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="toolboxBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="5"/>
+            <Button x:Name="dirListButton" Content="D i R L i S T i N G" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="dirListBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="6"/>
 
             <Button x:Name="settingsButton" Content="S E T T i N G S" HorizontalAlignment="Center" Margin="0,20,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="settingsBTN_Click" Width="180" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="11" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="7"/>
 
@@ -117,10 +117,10 @@
                 </Storyboard>
             </StackPanel.Resources>
 
-            <TextBlock x:Name="debugPanelHeader" Margin="0,0,0,15" Text="[ x L O G ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal"  IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False" />
+            <TextBlock x:Name="debugPanelHeader" Margin="0,0,0,20" Text="[ x L O G ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal"  IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False" />
 
-            <ScrollViewer Height="230" Width="auto" x:Name="scrollView" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" UseSystemFocusVisuals="False" IsTabStop="True" >
-                <TextBlock Height="auto" x:Name="textBoxDebug" Foreground="White" FontSize="10" TextWrapping="Wrap" Text=""/>
+            <ScrollViewer Height="225" Width="auto" x:Name="scrollView" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" UseSystemFocusVisuals="False" IsTabStop="True" >
+                <TextBlock Height="auto" x:Name="textBoxDebug" Foreground="White" FontSize="9" TextWrapping="Wrap" Text=""/>
             </ScrollViewer>
 
         </StackPanel>
@@ -148,11 +148,11 @@
 
             <TextBlock x:Name="toolboxPanelHeader" Margin="0,0,0,10" Text="[ x T O O L B O X ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
 
-            <Button x:Name="devicelistButton" Content="CREATE DEViCELiST DUMP" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="devicelistBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False"/>
-            <Button x:Name="userlistButton" Content="CREATE USERLiST DUMP" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="userlistBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False" />
+            <Button x:Name="devicelistButton" Content="CREATE DEViCELiST DUMP" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="devicelistBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="1"/>
+            <Button x:Name="userlistButton" Content="CREATE USERLiST DUMP" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="userlistBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="2"/>
 
-            <TextBox x:Name="testRWXTarget" Margin="0,15,0,0" Text="" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" PlaceholderText="Set Target-Dir or File (eg. X:\APPS\)" Foreground="#FF50A000" FontSize="12" FontWeight="Normal" Background="{x:Null}" Width="918" Height="25" IsTabStop="True" AcceptsReturn="False" InputScope="Text" BorderBrush="White" />
-            <Button x:Name="testRWXButton" Content="TEST TARGET FOR RWX" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="testRWXBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False"/>
+            <TextBox x:Name="testRWXTarget" Margin="0,15,0,0" Text="" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" PlaceholderText="Set Target-Dir or File (eg. X:\APPS\)" Foreground="#FF50A000" FontSize="12" FontWeight="Normal" Background="{x:Null}" Width="918" Height="25" AcceptsReturn="False" InputScope="Text" BorderBrush="White" TabIndex="3"/>
+            <Button x:Name="testRWXButton" Content="TEST TARGET FOR RWX" HorizontalAlignment="Center" Margin="0,5,0,0" GotFocus="buttonGotFocus" LostFocus="buttonLostFocus" ClickMode="Press" Click="testRWXBTN_Click" Width="920" Height="25" Background="#FFFFFFFF" Foreground="#FF50A000" FontSize="10" FontWeight="Bold" UseSystemFocusVisuals="False" TabIndex="4"/>
 
         </StackPanel>
 
@@ -204,9 +204,14 @@
 
             <TextBlock x:Name="settingsPanelHeader" Margin="0,0,0,10" Text="[ x S E T T i N G S ] : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : :" Foreground="#FF4BC70F" FontSize="16" FontWeight="Normal" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
 
-            <TextBox x:Name="dumpSource" Margin="0,20,250,10" Text="" PlaceholderText="Enter Filename or Directory..." Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
-            <TextBox x:Name="dumpDestination" Margin="0,0,250,20" Text="usb" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
-            <TextBox x:Name="netServer" Margin="0,20,250,20" Text="" PlaceholderText="NetDumpServer (eg.192.168.0.100:88)" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
+            <TextBlock x:Name="settingsSectionHeader" Margin="0,10,0,0" Text="SettingsFile _" Foreground="White" FontSize="16" FontWeight="Normal" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
+            <TextBox x:Name="settingsFile" Margin="0,20,250,10" Text="" PlaceholderText="settings.txt" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
+
+            <TextBlock x:Name="dumpSectionHeader" Margin="0,10,0,0" Text="DumpSettings _" Foreground="White" FontSize="16" FontWeight="Normal" IsDoubleTapEnabled="False" IsHoldingEnabled="False" IsRightTapEnabled="False" IsTapEnabled="False" IsHitTestVisible="False"/>
+            <TextBox x:Name="dumpSource" Margin="0,20,250,10" Text="D:\DevelopmentFiles\VSRemoteTools\x86\" PlaceholderText="Enter Filename or Directory..." Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
+            <TextBox x:Name="dumpDestination" Margin="0,0,250,10" Text="net" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
+            <CheckBox x:Name="soundFX" Padding="10,8,0,0" Margin="0,10,0,0" Foreground="White" FontSize="12" Content="SoundFX" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="True"/>
+            <TextBox x:Name="netServer" Margin="0,20,250,20" Text="192.168.0.10/parallaX/" PlaceholderText="NetDumpServer (eg.192.168.0.100:88)" Foreground="#00000000" FontSize="12" FontWeight="Normal" Background="White" IsTabStop="True" AcceptsReturn="False" InputScope="Text" />
 
         </StackPanel>
 
@@ -215,7 +220,7 @@
         <StackPanel x:Name="ctrlButtons" Width="55" Height="40" Margin="0,0,0,14" HorizontalAlignment="Center" VerticalAlignment="Bottom" RenderTransformOrigin="0.4,0.4" >
 
             <StackPanel.Background>
-                <ImageBrush ImageSource="Assets/btn_settings.png"/>
+                <ImageBrush ImageSource="Assets/Graphics/btnSettings.png"/>
             </StackPanel.Background>
 
 
